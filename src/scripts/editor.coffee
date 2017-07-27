@@ -19,6 +19,8 @@ class _EditorApp extends ContentTools.ComponentUI
         # The property used to store a region/fixtures name
         @_namingProp = null
 
+        @_mountParent = null
+
         # The test to use to determine if region is a fixture (by default we
         # look for the data-fixture attribute).
         @_fixtureTest = (domElement) ->
@@ -125,13 +127,16 @@ class _EditorApp extends ContentTools.ComponentUI
             queryOrDOMElements,
             namingProp='id',
             fixtureTest=null,
-            withIgnition=true
+            withIgnition=true,
+            mountParent=null
             ) ->
 
         # Initialize the editor application
 
         # Set the naming property
         @_namingProp = namingProp
+
+        @_mountParent = mountParent
 
         # If defined set the function used to test for fixtures
         if fixtureTest
@@ -315,9 +320,14 @@ class _EditorApp extends ContentTools.ComponentUI
 
     mount: () ->
         # Mount the widget to the DOM
-        @_domElement = @constructor.createDiv(['ct-app'])
-        document.body.insertBefore(@_domElement, null)
-        @_addDOMEventListeners()
+        if @_mountParent
+            @_domElement = @constructor.createDiv(['ct-app']);
+            @_mountParent.appendChild(@_domElement, null);
+            @_addDOMEventListeners();
+        else
+            @_domElement = @constructor.createDiv(['ct-app'])
+            document.body.insertBefore(@_domElement, null)
+            @_addDOMEventListeners()
 
     paste: (element, clipboardData) ->
         # Paste content into the given element

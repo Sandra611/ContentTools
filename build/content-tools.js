@@ -7958,6 +7958,7 @@
       this._state = 'dormant';
       this._busy = false;
       this._namingProp = null;
+      this._mountParent = null;
       this._fixtureTest = function(domElement) {
         return domElement.hasAttribute('data-fixture');
       };
@@ -8045,7 +8046,7 @@
       return new ContentEdit.Text('p', {}, '');
     };
 
-    _EditorApp.prototype.init = function(queryOrDOMElements, namingProp, fixtureTest, withIgnition) {
+    _EditorApp.prototype.init = function(queryOrDOMElements, namingProp, fixtureTest, withIgnition, mountParent) {
       if (namingProp == null) {
         namingProp = 'id';
       }
@@ -8055,7 +8056,11 @@
       if (withIgnition == null) {
         withIgnition = true;
       }
+      if (mountParent == null) {
+        mountParent = null;
+      }
       this._namingProp = namingProp;
+      this._mountParent = mountParent;
       if (fixtureTest) {
         this._fixtureTest = fixtureTest;
       }
@@ -8205,9 +8210,15 @@
     };
 
     _EditorApp.prototype.mount = function() {
-      this._domElement = this.constructor.createDiv(['ct-app']);
-      document.body.insertBefore(this._domElement, null);
-      return this._addDOMEventListeners();
+      if (this._mountParent) {
+        this._domElement = this.constructor.createDiv(['ct-app']);
+        this._mountParent.appendChild(this._domElement, null);
+        return this._addDOMEventListeners();
+      } else {
+        this._domElement = this.constructor.createDiv(['ct-app']);
+        document.body.insertBefore(this._domElement, null);
+        return this._addDOMEventListeners();
+      }
     };
 
     _EditorApp.prototype.paste = function(element, clipboardData) {
