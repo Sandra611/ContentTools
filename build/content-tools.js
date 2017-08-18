@@ -2852,8 +2852,8 @@
     ResizableElement.prototype.size = function(newSize) {
       var height, maxSize, minSize, width;
       if (!newSize) {
-        width = parseInt(this.attr('width') || 1);
-        height = parseInt(this.attr('height') || 1);
+        width = parseInt(this.attr('data-width') || 1);
+        height = parseInt(this.attr('data-height') || 1);
         return [width, height];
       }
       newSize[0] = parseInt(newSize[0]);
@@ -2864,11 +2864,12 @@
       maxSize = this.maxSize();
       newSize[0] = Math.min(newSize[0], maxSize[0]);
       newSize[1] = Math.min(newSize[1], maxSize[1]);
-      this.attr('width', parseInt(newSize[0]));
-      this.attr('height', parseInt(newSize[1]));
+      this.attr('data-width', parseInt(newSize[0]));
+      this.attr('data-height', parseInt(newSize[1]));
       if (this.isMounted()) {
         this._domElement.style.width = "" + newSize[0] + "px";
-        this._domElement.style.height = "" + newSize[1] + "px";
+
+        //this._domElement.style.height = "" + newSize[1] + "px";
         return this._domElement.setAttribute('data-ce-size', this._getSizeInfo());
       }
     };
@@ -4048,7 +4049,7 @@
       if (indent == null) {
         indent = '';
       }
-      img = "" + indent + "<img" + (this._attributesToString()) + ">";
+      img = "" + indent + "<img style = 'width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + ">";
       if (this.a) {
         le = ContentEdit.LINE_ENDINGS;
         attributes = ContentEdit.attributesToString(this.a);
@@ -4062,6 +4063,10 @@
     Image.prototype.mount = function() {
       var classes, style;
       this._domElement = document.createElement('div');
+      var child = document.createElement('div');
+      child.setAttribute('style', "padding-bottom: "+(this._aspectRatio*100)+"%;");
+      this._domElement.appendChild(child);
+
       classes = '';
       if (this.a && this.a['class']) {
         classes += ' ' + this.a['class'];
@@ -4072,12 +4077,12 @@
       this._domElement.setAttribute('class', classes);
       style = this._attributes['style'] ? this._attributes['style'] : '';
       style += "background-image:url('" + this._attributes['src'] + "');";
-      if (this._attributes['width']) {
-        style += "width:" + this._attributes['width'] + "px;";
+      if (this._attributes['data-width']) {
+        style += "width:" + this._attributes['data-width'] + "px;";
       }
-      if (this._attributes['height']) {
-        style += "height:" + this._attributes['height'] + "px;";
-      }
+     /* if (this._attributes['data-height']) {
+        style += "height:" + this._attributes['data-height'] + "px;";
+      }*/
       this._domElement.setAttribute('style', style);
       return Image.__super__.mount.call(this);
     };
@@ -4130,18 +4135,18 @@
         }
       }
       attributes = this.getDOMElementAttributes(domElement);
-      if (attributes['width'] === void 0) {
-        if (attributes['height'] === void 0) {
-          attributes['width'] = domElement.naturalWidth;
+      if (attributes['data-width'] === void 0) {
+        if (attributes['data-height'] === void 0) {
+          attributes['data-width'] = domElement.naturalWidth;
         } else {
-          attributes['width'] = domElement.clientWidth;
+          attributes['data-width'] = domElement.clientWidth;
         }
       }
-      if (attributes['height'] === void 0) {
-        if (attributes['width'] === void 0) {
-          attributes['height'] = domElement.naturalHeight;
+      if (attributes['data-height'] === void 0) {
+        if (attributes['data-width'] === void 0) {
+          attributes['data-height'] = domElement.naturalHeight;
         } else {
-          attributes['height'] = domElement.clientHeight;
+          attributes['data-height'] = domElement.clientHeight;
         }
       }
       return new this(attributes, a);
@@ -4161,6 +4166,10 @@
       if (sources == null) {
         sources = [];
       }
+
+      console.log("VIDEO");
+      console.log(attributes);
+
       Video.__super__.constructor.call(this, tagName, attributes);
       this.sources = sources;
       size = this.size();
@@ -4222,27 +4231,32 @@
           attributes = ContentEdit.attributesToString(source);
           sourceStrings.push("" + indent + ContentEdit.INDENT + "<source " + attributes + ">");
         }
-        return ("" + indent + "<video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video>");
+        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + "><video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video></video-wrapper>");
       } else {
-        return ("" + indent + "<" + this._tagName + (this._attributesToString()) + ">") + ("</" + this._tagName + ">");
+        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + "><iframe" + (this._attributesToString()) + ">") + ("</iframe></video-wrapper>");
       }
     };
 
     Video.prototype.mount = function() {
       var style;
       this._domElement = document.createElement('div');
+        var child = document.createElement('div');
+        child.setAttribute('style', "padding-bottom: 66%;");
+        this._domElement.appendChild(child);
+
       if (this.a && this.a['class']) {
         this._domElement.setAttribute('class', this.a['class']);
       } else if (this._attributes['class']) {
         this._domElement.setAttribute('class', this._attributes['class']);
       }
       style = this._attributes['style'] ? this._attributes['style'] : '';
-      if (this._attributes['width']) {
-        style += "width:" + this._attributes['width'] + "px;";
+      if (this._attributes['data-width']) {
+        style = "width:" + this._attributes['data-width'] + "px;";
       }
-      if (this._attributes['height']) {
-        style += "height:" + this._attributes['height'] + "px;";
-      }
+     /* if (this._attributes['data-height']) {
+        style += "height:" + this._attributes['data-height'] + "px;";
+      }*/
+
       this._domElement.setAttribute('style', style);
       this._domElement.setAttribute('data-ce-title', this._title());
       return Video.__super__.mount.call(this);
@@ -4253,7 +4267,7 @@
       if (this.isFixed()) {
         wrapper = document.createElement('div');
         wrapper.innerHTML = this.html();
-        domElement = wrapper.querySelector('iframe');
+        domElement = wrapper.querySelector('video-wrapper');
         this._domElement.parentNode.replaceChild(domElement, this._domElement);
         this._domElement = domElement;
       }
@@ -4296,7 +4310,7 @@
 
   })(ContentEdit.ResizableElement);
 
-  ContentEdit.TagNames.get().register(ContentEdit.Video, 'iframe', 'video');
+  ContentEdit.TagNames.get().register(ContentEdit.Video, 'video-wrapper');
 
   ContentEdit.List = (function(_super) {
     __extends(List, _super);
@@ -7099,11 +7113,11 @@
         href = '';
       }
       if (target == null) {
-        target = '';
+        target = 'NEW_WINDOW_TARGET';
       }
       LinkDialog.__super__.constructor.call(this);
       this._href = href;
-      this._target = target;
+      this._target = NEW_WINDOW_TARGET;
     }
 
     LinkDialog.prototype.mount = function() {
@@ -7161,22 +7175,31 @@
       this._domInput.addEventListener('keypress', (function(_this) {
         return function(ev) {
           if (ev.keyCode === 13) {
+            event.preventDefault();
             return _this.save();
           }
         };
       })(this));
-      this._domTargetButton.addEventListener('click', (function(_this) {
-        return function(ev) {
-          ev.preventDefault();
-          if (_this._target === NEW_WINDOW_TARGET) {
-            _this._target = '';
-            return ContentEdit.removeCSSClass(_this._domTargetButton, 'ct-anchored-dialog__target-button--active');
-          } else {
-            _this._target = NEW_WINDOW_TARGET;
-            return ContentEdit.addCSSClass(_this._domTargetButton, 'ct-anchored-dialog__target-button--active');
-          }
-        };
-      })(this));
+
+      /*@_domTargetButton.addEventListener 'click', (ev) =>
+          ev.preventDefault()
+      
+           * No target
+          if @_target == NEW_WINDOW_TARGET
+              @_target = ''
+              ContentEdit.removeCSSClass(
+                  @_domTargetButton,
+                  'ct-anchored-dialog__target-button--active'
+              )
+      
+           * Target TARGET
+          else
+              @_target = NEW_WINDOW_TARGET
+              ContentEdit.addCSSClass(
+                  @_domTargetButton,
+                  'ct-anchored-dialog__target-button--active'
+              )
+       */
       return this._domButton.addEventListener('click', (function(_this) {
         return function(ev) {
           ev.preventDefault();
@@ -7865,8 +7888,10 @@
       this._domPreview = document.createElement('iframe');
       this._domPreview.setAttribute('frameborder', '0');
       this._domPreview.setAttribute('height', '100%');
+      this._domPreview.setAttribute('data-height', '100%');
       this._domPreview.setAttribute('src', url);
       this._domPreview.setAttribute('width', '100%');
+      this._domPreview.setAttribute('data-width', '100%');
       return this._domView.appendChild(this._domPreview);
     };
 
@@ -8212,7 +8237,7 @@
     _EditorApp.prototype.mount = function() {
       if (this._mountParent) {
         this._domElement = this.constructor.createDiv(['ct-app']);
-        this._mountParent.appendChild(this._domElement, null);
+        this._mountParent.insertBefore(this._domElement, this._mountParent.firstChild);
         return this._addDOMEventListeners();
       } else {
         this._domElement = this.constructor.createDiv(['ct-app']);
@@ -9100,7 +9125,7 @@
     };
 
     Link.apply = function(element, selection, callback) {
-      var allowScrolling, app, applied, characters, dialog, domElement, ends, from, measureSpan, modal, rect, scrollX, scrollY, selectTag, starts, to, toolDetail, transparent, _ref, _ref1;
+      var allowScrolling, app, applied, characters, dialog, domElement, ends, from, measureSpan, modal, rect, scrollX, scrollY, selectTag, starts, to, toolDetail, transparent, wrapperRect, _ref, _ref1;
       toolDetail = {
         'tool': this,
         'element': element,
@@ -9154,7 +9179,8 @@
       });
       dialog = new ContentTools.LinkDialog(this.getAttr('href', element, selection), this.getAttr('target', element, selection));
       _ref1 = ContentTools.getScrollPosition(), scrollX = _ref1[0], scrollY = _ref1[1];
-      dialog.position([rect.left + (rect.width / 2) + scrollX, rect.top + (rect.height / 2) + scrollY]);
+      wrapperRect = document.querySelector(".ct-app").getBoundingClientRect();
+      dialog.position([-wrapperRect.left + rect.left + (rect.width / 2) + scrollX, -wrapperRect.top + rect.top + (rect.height / 2) + scrollY]);
       dialog.addEventListener('save', function(ev) {
         var a, alignmentClassNames, className, detail, linkClasses, _i, _j, _len, _len1;
         detail = ev.detail();
@@ -9935,9 +9961,9 @@
           if (!imageAttrs) {
             imageAttrs = {};
           }
-          imageAttrs.height = imageSize[1];
+          imageAttrs["data-height"] = imageSize[1];
           imageAttrs.src = imageURL;
-          imageAttrs.width = imageSize[0];
+          imageAttrs["data-width"] = imageSize[0];
           image = new ContentEdit.Image(imageAttrs);
           _ref = _this._insertAt(element), node = _ref[0], index = _ref[1];
           node.parent().attach(image, index);
@@ -10008,9 +10034,9 @@
           if (url) {
             video = new ContentEdit.Video('iframe', {
               'frameborder': 0,
-              'height': ContentTools.DEFAULT_VIDEO_HEIGHT,
+              'data-height': ContentTools.DEFAULT_VIDEO_HEIGHT,
               'src': url,
-              'width': ContentTools.DEFAULT_VIDEO_WIDTH
+              'data-width': ContentTools.DEFAULT_VIDEO_WIDTH
             });
             _ref = _this._insertAt(element), node = _ref[0], index = _ref[1];
             node.parent().attach(video, index);

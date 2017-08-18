@@ -63,8 +63,10 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
         @_domPreview = document.createElement('iframe')
         @_domPreview.setAttribute('frameborder', '0')
         @_domPreview.setAttribute('height', '100%')
+        @_domPreview.setAttribute('data-height', '100%')
         @_domPreview.setAttribute('src', url)
         @_domPreview.setAttribute('width', '100%')
+        @_domPreview.setAttribute('data-width', '100%')
         @_domView.appendChild(@_domPreview)
 
     save: () ->
