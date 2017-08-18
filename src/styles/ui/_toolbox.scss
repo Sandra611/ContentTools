@@ -8,7 +8,7 @@ html {
         /**
          * Apply a special right margin override to
          */
-        margin-right: 138px;
+        margin-right: 135px;
 
         @media (max-width: 820px) {
             margin-right: 56px;
@@ -42,15 +42,15 @@ html {
         padding: $spacing;
         position: fixed;
         top: 0;
-        width: 188px;
+        width: 95px;
         right: -50px;
         padding-right: 42px;
         height: calc(100% - 34px);
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
 
-        @media (max-width: 820px) {
-            width: 106px;
+        @media (min-width: 700px) {
+            width: 135px;
         }
     }
 
