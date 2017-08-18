@@ -322,7 +322,7 @@ class _EditorApp extends ContentTools.ComponentUI
         # Mount the widget to the DOM
         if @_mountParent
             @_domElement = @constructor.createDiv(['ct-app']);
-            @_mountParent.appendChild(@_domElement, null);
+            @_mountParent.insertBefore(@_domElement, @_mountParent.firstChild);
             @_addDOMEventListeners();
         else
             @_domElement = @constructor.createDiv(['ct-app'])
