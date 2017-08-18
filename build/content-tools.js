@@ -4167,9 +4167,6 @@
         sources = [];
       }
 
-      console.log("VIDEO");
-      console.log(attributes);
-
       Video.__super__.constructor.call(this, tagName, attributes);
       this.sources = sources;
       size = this.size();
