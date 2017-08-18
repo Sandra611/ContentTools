@@ -319,9 +319,12 @@ class ContentTools.Tools.Link extends ContentTools.Tools.Bold
         # Get the scroll position required for the dialog
         [scrollX, scrollY] = ContentTools.getScrollPosition()
 
+        wrapperRect = document.querySelector(".ct-app").getBoundingClientRect();
+
+
         dialog.position([
-            rect.left + (rect.width / 2) + scrollX,
-            rect.top + (rect.height / 2) + scrollY
+            -wrapperRect.left + rect.left + (rect.width / 2) + scrollX,
+            -wrapperRect.top + rect.top + (rect.height / 2) + scrollY
             ])
 
         dialog.addEventListener 'save', (ev) ->
@@ -1141,9 +1144,9 @@ class ContentTools.Tools.Image extends ContentTools.Tool
             if not imageAttrs
                 imageAttrs = {}
 
-            imageAttrs.height = imageSize[1]
+            imageAttrs["data-height"] = imageSize[1]
             imageAttrs.src = imageURL
-            imageAttrs.width = imageSize[0]
+            imageAttrs["data-width"] = imageSize[0]
 
             # Create the new image
             image = new ContentEdit.Image(imageAttrs)
@@ -1229,9 +1232,9 @@ class ContentTools.Tools.Video extends ContentTools.Tool
                 video = new ContentEdit.Video(
                     'iframe', {
                         'frameborder': 0,
-                        'height': ContentTools.DEFAULT_VIDEO_HEIGHT,
+                        'data-height': ContentTools.DEFAULT_VIDEO_HEIGHT,
                         'src': url,
-                        'width': ContentTools.DEFAULT_VIDEO_WIDTH
+                        'data-width': ContentTools.DEFAULT_VIDEO_WIDTH
                         })
 
                 # Find insert position

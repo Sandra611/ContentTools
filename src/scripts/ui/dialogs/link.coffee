@@ -6,13 +6,13 @@ class ContentTools.LinkDialog extends ContentTools.AnchoredDialogUI
     # option is selected.
     NEW_WINDOW_TARGET = '_blank'
 
-    constructor: (href='', target='') ->
+    constructor: (href='', target='NEW_WINDOW_TARGET') ->
         super()
 
         # The initial value to set the href and target attribute
         # of the link as (e.g if we're editing a link).
         @_href = href
-        @_target = target
+        @_target = NEW_WINDOW_TARGET
 
     mount: () ->
         # Mount the widget
@@ -100,10 +100,11 @@ class ContentTools.LinkDialog extends ContentTools.AnchoredDialogUI
         # Input
         @_domInput.addEventListener 'keypress', (ev) =>
             if ev.keyCode is 13
+                event.preventDefault()
                 @save()
 
         # Toggle the target attribute for the link ('' or TARGET)
-        @_domTargetButton.addEventListener 'click', (ev) =>
+        ###@_domTargetButton.addEventListener 'click', (ev) =>
             ev.preventDefault()
 
             # No target
@@ -120,7 +121,7 @@ class ContentTools.LinkDialog extends ContentTools.AnchoredDialogUI
                 ContentEdit.addCSSClass(
                     @_domTargetButton,
                     'ct-anchored-dialog__target-button--active'
-                )
+                )###
 
         # Button
         @_domButton.addEventListener 'click', (ev) =>
