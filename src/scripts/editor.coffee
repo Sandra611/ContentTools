@@ -619,6 +619,16 @@ class _EditorApp extends ContentTools.ComponentUI
 
         @busy(false)
 
+    resetHistory: () ->
+        # Store the date at which the root was last modified so we can check for
+        # changes on save.
+        @history.stopWatching();
+        @history = null;
+        @_rootLastModified = ContentEdit.Root.get().lastModified()
+        # Create a new history instance to store the page changes against
+        @history = new ContentTools.History(@_regions)
+        @history.watch()
+
     stop: (save) ->
         # Stop editing the page
         if not @dispatchEvent(@createEvent('stop', {save: save}))
@@ -754,15 +764,31 @@ class _EditorApp extends ContentTools.ComponentUI
         document.addEventListener('keyup', @_handleHighlightOff)
         document.addEventListener('visibilitychange', @_handleVisibility)
 
+        document.addEventListener 'keypress', (ev) ->
+            # Was the enter key pressed
+                if ev.keyCode != 13
+                    return
+                # Is the selected element an image
+                selectedElm = ContentEdit.Root.get().focused()
+                if selectedElm and selectedElm.typeName is 'Image'
+                    # Attach a new paragraph to the parent after the image
+                    p = new ContentEdit.Text('p', {}, '')
+                    selectedElm.parent().attach(p, selectedElm.parent().children.indexOf(selectedElm) + 1)
+
+                    # Move the focus and selection to the new paragraph
+                    p.focus()
+                    selection = new ContentSelect.Range(0, 0)
+                    selection.select(p.domElement())
+
         # When unloading the page we check to see if the user is currently
         # editing and if so ask them to confirm the action.
-        @_handleBeforeUnload = (ev) =>
+        ###@_handleBeforeUnload = (ev) =>
             if @_state is 'editing'
                 cancelMessage = ContentEdit._(ContentTools.CANCEL_MESSAGE)
                 (ev or window.event).returnValue = cancelMessage
                 return cancelMessage
 
-        window.addEventListener('beforeunload', @_handleBeforeUnload)
+        window.addEventListener('beforeunload', @_handleBeforeUnload)###
 
         # When the page is unloaded we destroy the app to make sure everything
         # is cleaned up.
