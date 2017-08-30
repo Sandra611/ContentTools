@@ -4049,7 +4049,8 @@
       if (indent == null) {
         indent = '';
       }
-      img = "" + indent + "<img style = 'width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + ">";
+      //Style seems to be double in some cases but it needs to be
+      img = "" + indent + "<img style = 'width: "+ this._attributes['data-width'] + "px;'" + (this._attributesToString()) + ">";
       if (this.a) {
         le = ContentEdit.LINE_ENDINGS;
         attributes = ContentEdit.attributesToString(this.a);
@@ -4228,18 +4229,39 @@
           attributes = ContentEdit.attributesToString(source);
           sourceStrings.push("" + indent + ContentEdit.INDENT + "<source " + attributes + ">");
         }
-        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + "><video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video></video-wrapper>");
+        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px;'" + (this._attributesToString()) + "><div><video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video></div></video-wrapper>");
       } else {
-        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + "><iframe" + (this._attributesToString()) + ">") + ("</iframe></video-wrapper>");
+        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px;'" + (this._attributesToString()) + "><div><iframe" + (this._attributesToString()) + ">") + ("</iframe></div></video-wrapper>");
       }
     };
+
+    Video.prototype.htmlPreview = function(indent) {
+          var attributes, le, source, sourceStrings, _i, _len, _ref;
+          if (indent == null) {
+              indent = '';
+          }
+          le = ContentEdit.LINE_ENDINGS;
+          if (this.tagName() === 'video') {
+              sourceStrings = [];
+              _ref = this.sources;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  source = _ref[_i];
+                  attributes = ContentEdit.attributesToString(source);
+                  sourceStrings.push("" + indent + ContentEdit.INDENT + "<source " + attributes + ">");
+              }
+              return ("" + indent + "<video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video>");
+          } else {
+              return ("" + indent + "<iframe frameborder='0' src='"+this._attributes['src'] + "'></iframe>");
+          }
+      };
 
     Video.prototype.mount = function() {
       var style;
       this._domElement = document.createElement('div');
         var child = document.createElement('div');
-        child.setAttribute('style', "padding-bottom: 66%;");
+        child.setAttribute('style', "padding-bottom: 60%;");
         this._domElement.appendChild(child);
+        child.innerHTML=this.htmlPreview();
 
       if (this.a && this.a['class']) {
         this._domElement.setAttribute('class', this.a['class']);
@@ -5406,8 +5428,8 @@
     Tools: {},
     CANCEL_MESSAGE: 'Your changes have not been saved, do you really want to lose them?'.trim(),
     DEFAULT_TOOLS: [['bold', 'italic', 'link', 'align-left', 'align-center', 'align-right'], ['heading', 'subheading', 'paragraph', 'unordered-list', 'ordered-list', 'table', 'indent', 'unindent', 'line-break'], ['image', 'video', 'preformatted'], ['undo', 'redo', 'remove']],
-    DEFAULT_VIDEO_HEIGHT: 300,
-    DEFAULT_VIDEO_WIDTH: 400,
+    DEFAULT_VIDEO_HEIGHT: 502,
+    DEFAULT_VIDEO_WIDTH: 760,
     HIGHLIGHT_HOLD_DURATION: 2000,
     INSPECTOR_IGNORED_ELEMENTS: ['Fixture', 'ListItemText', 'Region', 'TableCellText'],
     IMAGE_UPLOADER: null,
@@ -6517,7 +6539,7 @@
         before = null;
       }
       this._domElement = this.constructor.createDiv(['ct-tool', "ct-tool--" + this.tool.icon]);
-      this._domElement.setAttribute('data-ct-tooltip', ContentEdit._(this.tool.label));
+      this._domElement.setAttribute('title', ContentEdit._(this.tool.label));
       return ToolUI.__super__.mount.call(this, domParent, before);
     };
 
@@ -8457,6 +8479,14 @@
       return this.busy(false);
     };
 
+    _EditorApp.prototype.resetHistory = function() {
+      this.history.stopWatching();
+      this.history = null;
+      this._rootLastModified = ContentEdit.Root.get().lastModified();
+      this.history = new ContentTools.History(this._regions);
+      return this.history.watch();
+    };
+
     _EditorApp.prototype.stop = function(save) {
       var focused;
       if (!this.dispatchEvent(this.createEvent('stop', {
@@ -8564,17 +8594,29 @@
       document.addEventListener('keydown', this._handleHighlightOn);
       document.addEventListener('keyup', this._handleHighlightOff);
       document.addEventListener('visibilitychange', this._handleVisibility);
-      this._handleBeforeUnload = (function(_this) {
-        return function(ev) {
-          var cancelMessage;
-          if (_this._state === 'editing') {
-            cancelMessage = ContentEdit._(ContentTools.CANCEL_MESSAGE);
-            (ev || window.event).returnValue = cancelMessage;
-            return cancelMessage;
-          }
-        };
-      })(this);
-      window.addEventListener('beforeunload', this._handleBeforeUnload);
+      document.addEventListener('keypress', function(ev) {
+        var p, selectedElm, selection;
+        if (ev.keyCode !== 13) {
+          return;
+        }
+        selectedElm = ContentEdit.Root.get().focused();
+        if (selectedElm && selectedElm.typeName === 'Image') {
+          p = new ContentEdit.Text('p', {}, '');
+          selectedElm.parent().attach(p, selectedElm.parent().children.indexOf(selectedElm) + 1);
+          p.focus();
+          selection = new ContentSelect.Range(0, 0);
+          return selection.select(p.domElement());
+        }
+      });
+
+      /*@_handleBeforeUnload = (ev) =>
+          if @_state is 'editing'
+              cancelMessage = ContentEdit._(ContentTools.CANCEL_MESSAGE)
+              (ev or window.event).returnValue = cancelMessage
+              return cancelMessage
+      
+      window.addEventListener('beforeunload', @_handleBeforeUnload)
+       */
       this._handleUnload = (function(_this) {
         return function(ev) {
           return _this.destroy();
@@ -9879,7 +9921,7 @@
     };
 
     LineBreak.apply = function(element, selection, callback) {
-      var br, cursor, tail, tip, toolDetail;
+      var br, cursor, linebreakStr, tail, tip, toolDetail;
       toolDetail = {
         'tool': this,
         'element': element,
@@ -9889,9 +9931,13 @@
         return;
       }
       cursor = selection.get()[0] + 1;
+      linebreakStr = '<br>';
+      if (element.content.characters.length === cursor - 1) {
+        linebreakStr = '<br><br>';
+      }
       tip = element.content.substring(0, selection.get()[0]);
       tail = element.content.substring(selection.get()[1]);
-      br = new HTMLString.String('<br>', element.content.preserveWhitespace());
+      br = new HTMLString.String(linebreakStr, element.content.preserveWhitespace());
       element.content = tip.concat(br, tail);
       element.updateInnerHTML();
       element.taint();
