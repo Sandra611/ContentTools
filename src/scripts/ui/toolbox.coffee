@@ -341,7 +341,7 @@ class ContentTools.ToolUI extends ContentTools.AnchoredComponentUI
             ])
 
         # Add the tooltip
-        @_domElement.setAttribute('data-ct-tooltip', ContentEdit._(@tool.label))
+        @_domElement.setAttribute('title', ContentEdit._(@tool.label))
 
         super(domParent, before)
 
