@@ -4049,7 +4049,8 @@
       if (indent == null) {
         indent = '';
       }
-      img = "" + indent + "<img style = 'width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + ">";
+      //Style seems to be double in some cases but it needs to be
+      img = "" + indent + "<img style = 'width: "+ this._attributes['data-width'] + "px;'" + (this._attributesToString()) + ">";
       if (this.a) {
         le = ContentEdit.LINE_ENDINGS;
         attributes = ContentEdit.attributesToString(this.a);
@@ -4228,18 +4229,39 @@
           attributes = ContentEdit.attributesToString(source);
           sourceStrings.push("" + indent + ContentEdit.INDENT + "<source " + attributes + ">");
         }
-        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + "><video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video></video-wrapper>");
+        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px;'" + (this._attributesToString()) + "><div><video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video></div></video-wrapper>");
       } else {
-        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px'" + (this._attributesToString()) + "><iframe" + (this._attributesToString()) + ">") + ("</iframe></video-wrapper>");
+        return ("" + indent + "<video-wrapper style ='width: "+ this._attributes['data-width'] + "px;'" + (this._attributesToString()) + "><div><iframe" + (this._attributesToString()) + ">") + ("</iframe></div></video-wrapper>");
       }
     };
+
+    Video.prototype.htmlPreview = function(indent) {
+          var attributes, le, source, sourceStrings, _i, _len, _ref;
+          if (indent == null) {
+              indent = '';
+          }
+          le = ContentEdit.LINE_ENDINGS;
+          if (this.tagName() === 'video') {
+              sourceStrings = [];
+              _ref = this.sources;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  source = _ref[_i];
+                  attributes = ContentEdit.attributesToString(source);
+                  sourceStrings.push("" + indent + ContentEdit.INDENT + "<source " + attributes + ">");
+              }
+              return ("" + indent + "<video" + (this._attributesToString()) + ">" + le) + sourceStrings.join(le) + ("" + le + indent + "</video>");
+          } else {
+              return ("" + indent + "<iframe frameborder='0' src='"+this._attributes['src'] + "'></iframe>");
+          }
+      };
 
     Video.prototype.mount = function() {
       var style;
       this._domElement = document.createElement('div');
         var child = document.createElement('div');
-        child.setAttribute('style', "padding-bottom: 66%;");
+        child.setAttribute('style', "padding-bottom: 60%;");
         this._domElement.appendChild(child);
+        child.innerHTML=this.htmlPreview();
 
       if (this.a && this.a['class']) {
         this._domElement.setAttribute('class', this.a['class']);
