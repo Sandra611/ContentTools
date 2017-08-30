@@ -1064,12 +1064,19 @@ class ContentTools.Tools.LineBreak extends ContentTools.Tool
         if not @dispatchEditorEvent('tool-apply', toolDetail)
             return
 
+
         # Insert a BR at the current in index
         cursor = selection.get()[0] + 1
 
+        linebreakStr = '<br>'
+
+        if element.content.characters.length == cursor-1
+            linebreakStr = '<br><br>'
+
+
         tip = element.content.substring(0, selection.get()[0])
         tail = element.content.substring(selection.get()[1])
-        br = new HTMLString.String('<br>', element.content.preserveWhitespace())
+        br = new HTMLString.String(linebreakStr, element.content.preserveWhitespace())
         element.content = tip.concat(br, tail)
         element.updateInnerHTML()
         element.taint()
