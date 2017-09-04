@@ -5428,8 +5428,8 @@
     Tools: {},
     CANCEL_MESSAGE: 'Your changes have not been saved, do you really want to lose them?'.trim(),
     DEFAULT_TOOLS: [['bold', 'italic', 'link', 'align-left', 'align-center', 'align-right'], ['heading', 'subheading', 'paragraph', 'unordered-list', 'ordered-list', 'table', 'indent', 'unindent', 'line-break'], ['image', 'video', 'preformatted'], ['undo', 'redo', 'remove']],
-    DEFAULT_VIDEO_HEIGHT: 502,
-    DEFAULT_VIDEO_WIDTH: 760,
+    DEFAULT_VIDEO_HEIGHT: 480,
+    DEFAULT_VIDEO_WIDTH: 800,
     HIGHLIGHT_HOLD_DURATION: 2000,
     INSPECTOR_IGNORED_ELEMENTS: ['Fixture', 'ListItemText', 'Region', 'TableCellText'],
     IMAGE_UPLOADER: null,
@@ -7195,6 +7195,7 @@
         return function(ev) {
           if (ev.keyCode === 13) {
             event.preventDefault();
+            event.stopPropagation();
             return _this.save();
           }
         };
@@ -7792,7 +7793,7 @@
       domControlGroup = this.constructor.createDiv(['ct-control-group', 'ct-control-group--right']);
       this._domControls.appendChild(domControlGroup);
       this._domApply = this.constructor.createDiv(['ct-control', 'ct-control--text', 'ct-control--apply']);
-      this._domApply.textContent = 'Apply';
+      this._domApply.textContent = ContentEdit._('Apply');
       domControlGroup.appendChild(this._domApply);
       return this._addDOMEventListeners();
     };
@@ -7891,6 +7892,7 @@
       this._domInput = document.createElement('input');
       this._domInput.setAttribute('class', 'ct-video-dialog__input');
       this._domInput.setAttribute('name', 'url');
+      this._domInput.setAttribute('tabindex', '-1');
       this._domInput.setAttribute('placeholder', ContentEdit._('Paste YouTube or Vimeo URL') + '...');
       this._domInput.setAttribute('type', 'text');
       domControlGroup.appendChild(this._domInput);
@@ -7930,8 +7932,7 @@
     };
 
     VideoDialog.prototype.show = function() {
-      VideoDialog.__super__.show.call(this);
-      return this._domInput.focus();
+      return VideoDialog.__super__.show.call(this);
     };
 
     VideoDialog.prototype.unmount = function() {
