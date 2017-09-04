@@ -29,6 +29,7 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
         @_domInput = document.createElement('input')
         @_domInput.setAttribute('class', 'ct-video-dialog__input')
         @_domInput.setAttribute('name', 'url')
+        @_domInput.setAttribute('tabindex', '-1')
         @_domInput.setAttribute(
             'placeholder',
             ContentEdit._('Paste YouTube or Vimeo URL') + '...'
@@ -89,7 +90,8 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
         super()
 
         # Once visible automatically give focus to the link input
-        @_domInput.focus()
+        # Since IE11 removes placeholder on focus, we disabled this
+        # @_domInput.focus()
 
     unmount: () ->
         # Unmount the component from the DOM
