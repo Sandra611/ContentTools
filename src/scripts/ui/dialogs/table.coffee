@@ -99,7 +99,7 @@ class ContentTools.TableDialog extends ContentTools.DialogUI
             'ct-control--text',
             'ct-control--apply'
             ])
-        @_domApply.textContent = 'Apply'
+        @_domApply.textContent = ContentEdit._('Apply')
         domControlGroup.appendChild(@_domApply)
 
         # Add interaction handlers
