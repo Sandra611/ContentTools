@@ -5427,7 +5427,7 @@
   ContentTools = {
     Tools: {},
     CANCEL_MESSAGE: 'Your changes have not been saved, do you really want to lose them?'.trim(),
-    DEFAULT_TOOLS: [['bold', 'italic', 'link', 'align-left', 'align-center', 'align-right'], ['heading', 'subheading', 'paragraph', 'unordered-list', 'ordered-list', 'table', 'indent', 'unindent', 'line-break'], ['image', 'video', 'preformatted'], ['undo', 'redo', 'remove']],
+    DEFAULT_TOOLS: [['bold', 'italic', 'link', 'align-left', 'align-center', 'align-right'], ['heading', 'subheading', 'paragraph', 'unordered-list', 'ordered-list', 'table', 'indent', 'unindent', 'line-break'], ['image', 'video'], ['undo', 'redo', 'remove']],
     DEFAULT_VIDEO_HEIGHT: 480,
     DEFAULT_VIDEO_WIDTH: 800,
     HIGHLIGHT_HOLD_DURATION: 2000,
@@ -7950,9 +7950,7 @@
       this._domInput.addEventListener('input', (function(_this) {
         return function(ev) {
           var updatePreview;
-          if (ev.target.value) {
-            ContentEdit.removeCSSClass(_this._domButton, 'ct-control--muted');
-          } else {
+          if (!ev.target.value) {
             ContentEdit.addCSSClass(_this._domButton, 'ct-control--muted');
           }
           if (_this._updatePreviewTimeout) {
@@ -7963,19 +7961,13 @@
             videoURL = _this._domInput.value.trim();
             embedURL = ContentTools.getEmbedVideoURL(videoURL);
             if (embedURL) {
-              return _this.preview(embedURL);
+              return ContentEdit.removeCSSClass(_this._domButton, 'ct-control--muted');
             } else {
-              return _this.clearPreview();
+              _this.clearPreview();
+              return ContentEdit.addCSSClass(_this._domButton, 'ct-control--muted');
             }
           };
           return _this._updatePreviewTimeout = setTimeout(updatePreview, 500);
-        };
-      })(this));
-      this._domInput.addEventListener('keypress', (function(_this) {
-        return function(ev) {
-          if (ev.keyCode === 13) {
-            return _this.save();
-          }
         };
       })(this));
       return this._domButton.addEventListener('click', (function(_this) {
