@@ -32,13 +32,14 @@ ContentTools =
             'line-break'
         ], [
             'image',
-            'video',
-            'preformatted'
+            'video'
         ], [
             'undo',
             'redo',
             'remove'
         ]
+
+        # 'preformatted'
     ]
 
     # Default sizes for new videos when inserted into a region
