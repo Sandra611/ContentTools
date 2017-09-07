@@ -117,9 +117,9 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
         @_domInput.addEventListener 'input', (ev) =>
 
             # If the input field is empty we disable the insert button
-           if ev.target.value
-                ContentEdit.removeCSSClass(@_domButton, 'ct-control--muted')
-            else
+           if !ev.target.value
+                #ContentEdit.removeCSSClass(@_domButton, 'ct-control--muted')
+           #else
                 ContentEdit.addCSSClass(@_domButton, 'ct-control--muted')
 
             # We give the user half a second to make additional changes before
@@ -134,9 +134,10 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
                 videoURL = @_domInput.value.trim()
                 embedURL = ContentTools.getEmbedVideoURL(videoURL)
                 if embedURL
-                    @preview(embedURL)
+                    ContentEdit.removeCSSClass(@_domButton, 'ct-control--muted')
                 else
                     @clearPreview()
+                    ContentEdit.addCSSClass(@_domButton, 'ct-control--muted')
 
             @_updatePreviewTimeout = setTimeout(updatePreview, 500)
 
@@ -144,9 +145,9 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
         # or the button is selected.
 
         # Input
-        @_domInput.addEventListener 'keypress', (ev) =>
-            if ev.keyCode is 13
-                @save()
+        #@_domInput.addEventListener 'keypress', (ev) =>
+            #if ev.keyCode is 13
+                #@save()
 
         # Button
         @_domButton.addEventListener 'click', (ev) =>
