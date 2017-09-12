@@ -134,6 +134,7 @@ class ContentTools.VideoDialog extends ContentTools.DialogUI
                 videoURL = @_domInput.value.trim()
                 embedURL = ContentTools.getEmbedVideoURL(videoURL)
                 if embedURL
+                    @preview(embedURL)
                     ContentEdit.removeCSSClass(@_domButton, 'ct-control--muted')
                 else
                     @clearPreview()

@@ -7961,6 +7961,7 @@
             videoURL = _this._domInput.value.trim();
             embedURL = ContentTools.getEmbedVideoURL(videoURL);
             if (embedURL) {
+              _this.preview(embedURL);
               return ContentEdit.removeCSSClass(_this._domButton, 'ct-control--muted');
             } else {
               _this.clearPreview();
